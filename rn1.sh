@@ -15,6 +15,9 @@ typeset -i DEBUG=0
 # CONSTANTS BEGIN
 readonly PATH=/bin:/usr/bin:/sbin:/usr/sbin
 
+readonly GOOGLE_URL=https://www.gstatic.com/ipranges/goog.txt
+readonly FACEBOOK_URL=https://raw.githubusercontent.com/platformbuilds/FacebookIPLists/refs/heads/master/facebook_ipv4_cidr_blocks.lst
+
 typeset bn="" LOGERR=""
 bn="$(basename "$0")"
 LOGERR=$(mktemp --tmpdir "${bn%\.*}.XXXX")
@@ -41,11 +44,13 @@ main() {
 
     (( DEBUG )) && echo "${ROUTES[@]}"
 
-    # Get google routes
-    typeset -a GoogleRoutes=()
-    mapfile -t GoogleRoutes < <(curl -sS https://www.gstatic.com/ipranges/goog.txt | grep -P '(\d{1,3}\.){3}\d{1,3}/\d{1,2}')
+    # Get google &b facebook routes
+    typeset -a GoogleRoutes=() FacebookRoutes=()
+    mapfile -t GoogleRoutes < <(curl -sS $GOOGLE_URL | grep -P '(\d{1,3}\.){3}\d{1,3}/\d{1,2}')
+    mapfile -t FacebookRoutes < <(curl -sS $FACEBOOK_URL | grep -P '(\d{1,3}\.){3}\d{1,3}/\d{1,2}')
 
     ROUTES+=( "${GoogleRoutes[@]}" )
+    ROUTES+=( "${FacebookRoutes[@]}" )
 
     typeset -a AllRoutesList=() AllRoutesListShort=()
     mapfile -t AllRoutesList < <(ip route show | sed 's/[[:space:]]*$//')
