@@ -70,8 +70,11 @@ main() {
 		do
 		    if [[ ${AllRoutesList[e]} == "${ROUTES[i]}"* ]]
 		    then
-			_log notice "Delete malformed route '${AllRoutesList[e]}'"
-			eval "ip route del ${AllRoutesList[e]}"
+			if [[ ! ${AllRoutesList[e]} =~ .*ospf.* ]]
+			then
+			    _log notice "Delete malformed route '${AllRoutesList[e]}'"
+			    eval "ip route del ${AllRoutesList[e]}"
+			fi
 		    fi
 		done
 
