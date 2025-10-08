@@ -40,7 +40,8 @@ main() {
 
     checks
     # Read settings
-    source "/etc/${bn%\.*}.conf"
+    source "/etc/${bn%\.*}/interface.conf"
+    source "/etc/${bn%\.*}/routes.conf"
 
     (( DEBUG )) && echo "${ROUTES[@]}"
 
