@@ -17,6 +17,7 @@ readonly PATH=/bin:/usr/bin:/sbin:/usr/sbin
 
 readonly GOOGLE_URL=https://www.gstatic.com/ipranges/goog.txt
 readonly FACEBOOK_URL=https://raw.githubusercontent.com/platformbuilds/FacebookIPLists/refs/heads/master/facebook_ipv4_cidr_blocks.lst
+readonly TELEGRAM_URL=https://core.telegram.org/resources/cidr.txt
 
 typeset bn="" LOGERR=""
 bn="$(basename "$0")"
@@ -46,12 +47,14 @@ main() {
     (( DEBUG )) && echo "${ROUTES[@]}"
 
     # Get google &b facebook routes
-    typeset -a GoogleRoutes=() FacebookRoutes=()
+    typeset -a GoogleRoutes=() FacebookRoutes=() TelegramRoutes=()
     mapfile -t GoogleRoutes < <(curl -sS $GOOGLE_URL | grep -P '(\d{1,3}\.){3}\d{1,3}/\d{1,2}')
     mapfile -t FacebookRoutes < <(curl -sS $FACEBOOK_URL | grep -P '(\d{1,3}\.){3}\d{1,3}/\d{1,2}')
+    mapfile -t TelegramRoutes < <(curl -sS $TELEGRAM_URL | grep -P '(\d{1,3}\.){3}\d{1,3}/\d{1,2}')
 
     ROUTES+=( "${GoogleRoutes[@]}" )
     ROUTES+=( "${FacebookRoutes[@]}" )
+    ROUTES+=( "${TelegramRoutes[@]}" )
 
     typeset -a AllRoutesList=() AllRoutesListShort=()
     mapfile -t AllRoutesList < <(ip route show | sed 's/[[:space:]]*$//')
