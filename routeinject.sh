@@ -56,10 +56,11 @@ main() {
     ROUTES+=( "${FacebookRoutes[@]}" )
     ROUTES+=( "${TelegramRoutes[@]}" )
 
-    typeset -a AllRoutesList=() AllRoutesListShort=()
+    typeset -a AllRoutesList=() AllRoutesListShort=() ExistingRoutesWithMetric=()
     mapfile -t AllRoutesList < <(ip route show | sed 's/[[:space:]]*$//')
     # shellcheck disable=SC2034
     mapfile -t AllRoutesListShort < <(ip route show | gawk '{ print $1 }')
+    mapfile -t ExistingRoutesWithMetric < <(ip route show metric "$METRIC" | gawk '{ print $1 }')
 
     for (( i = 0; i < ${#ROUTES[@]}; i++ ))
     do
@@ -90,6 +91,15 @@ main() {
 	fi
 
 	unset route
+    done
+
+    for (( r = 0; r < ${#ExistingRoutesWithMetric[@]}; r++ ))
+    do
+	if ! _inarray ROUTES "${ExistingRoutesWithMetric[r]}"
+	then
+	    _log notice "Delete extra route ${ExistingRoutesWithMetric[r]}"
+	    eval "ip route del ${ExistingRoutesWithMetric[r]}"
+	fi
     done
 
     exit 0
